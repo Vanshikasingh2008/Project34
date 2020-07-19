@@ -1,5 +1,5 @@
 //Create variables here
-var dog, happyDog, database, foodLS, foodStock;
+var dog, happyDog, database, foodLS, foodStock,foodStockref;
 
 function preload()
 {
@@ -18,22 +18,24 @@ function setup() {
 
   database = firebase.database();
   
-  foodStock = database.ref('Food');
-  foodStock.on("value", readStock);
+  foodStock = database.ref('Food')
+  foodStock.on("value",readStock);
 
   /*foodEaten = database.ref('EatenFood');
-  foodEaten.on("value", readStock);*/
+  foodEaten.on("value", readStock2);*/
 }
 
 
 function draw() { 
   background(46, 139, 87); 
 
-  if(keyWentDown(UP_ARROW)){
+  if(keyWentDown(UP_ARROW) && foodLS !== undefined){
     dog.addImage(happyDog);
     writeStock(foodLS);
     //eatenFood(foodES);
   }
+
+  dbreadStock();
 
   drawSprites();
   //add styles here
@@ -41,15 +43,31 @@ function draw() {
   fill("white");
   stroke("black");
   text("Note : Press Up_Arrow to feed the Dog",75,30);
+
+  if(foodLS != undefined){
   text("Food Left to eat = "+ foodLS,100,430);
-  //text("Food already eaten = " + foodES,100,460);
+  //text("Food already eaten = " ,100,460);
+   }
 
 }
-
-function readStock(data){
+async function dbreadStock(){
+  foodStockref = await database.ref('Food')
+  foodStock.on("value",(data) =>{
+    foodLS = data.val();
+  })
+  /*if(foodStockref.exists()){
+    foodLS = foodStockref.val();
+  }
+  foodStock.once("value", (data)=>{
   foodLS = data.val();
-  //foodES = data.val();
+  });*/
 }
+ function readStock(data){
+  foodLS = data.val();
+}
+/*function readStock2(data){
+  foodES = data.val();
+}*/
 
 function writeStock(x){
 
@@ -63,7 +81,7 @@ function writeStock(x){
   })
 }
 
-/*function eatenFood(){
+/*function eatenFood(x){
   if(x>=20){
     x = 20;
   }else{
